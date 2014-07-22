@@ -1,0 +1,39 @@
+{
+  "name": "authrizr",
+  "version": "0.1.0",
+  "description": "A set of models and middleware for an express application to handle access control",
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/benwilhelm/node-authrizr.git"
+  },
+  "keywords": [
+    "auth",
+    "authorize",
+    "access-control"
+  ],
+  "author": "Ben Wilhelm <ben@doublebeamdesign.com> (http://doublebeamdesign.com/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/benwilhelm/node-authrizr/issues"
+  },
+  "homepage": "https://github.com/benwilhelm/node-authrizr",
+  "devDependencies": {
+    "mocha": "^1.20.1",
+    "grunt": "^0.4.5",
+    "grunt-mocha-test": "^0.11.0",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "should": "^4.0.4",
+    "pow-mongoose-fixtures": "^0.3.0"
+  },
+  "dependencies": {
+    "mongoose": "^3.8.13",
+    "async": "^0.9.0",
+    "bcrypt": "^0.7.8",
+    "mongodb": "^1.4.7"
+  }
+}
