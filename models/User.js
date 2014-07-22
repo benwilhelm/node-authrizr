@@ -1,7 +1,6 @@
 // User Model based on http://devsmash.com/blog/password-authentication-with-mongoose-and-bcrypt
 
-var store = require('../lib/db') 
-  , Schema = store.Schema
+var mongoose = require('mongoose')
   , async = require('async')
   , bcrypt = require('bcrypt')
   , crypto = require('crypto')
@@ -11,7 +10,7 @@ var store = require('../lib/db')
   ;
 
 var UserSchema = function(){
-  var sch = new Schema({
+  var sch = new mongoose.Schema({
     email: {type: String, index: {unique:true}, required: "Please provide a valid email address"} ,
     name: {
       first: {type: String, required: "Please provide a first name"} ,
@@ -262,6 +261,6 @@ var UserSchema = function(){
 };
 
 module.exports = {
-  Model: store.mongoose.model('User', UserSchema()),
+  Model: mongoose.model('User', UserSchema()),
   Schema: UserSchema
 };
