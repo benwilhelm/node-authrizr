@@ -10,8 +10,8 @@ var store = require('../lib/db')
   , LOCK_TIME = 2 * 60 * 60 * 1000 // 2 hours
   ;
 
-var sch = function(){
-  var UserSchema = new Schema({
+var UserSchema = function(){
+  var sch = new Schema({
     email: {type: String, index: {unique:true}, required: "Please provide a valid email address"} ,
     name: {
       first: {type: String, required: "Please provide a first name"} ,
@@ -29,25 +29,25 @@ var sch = function(){
   // !VIRTUAL ATTRIBUTES
   // =======================
   
-  UserSchema.virtual('username').get(function(){
+  sch.virtual('username').get(function(){
     return this.email ;
   }) ;
   
-  UserSchema.virtual('name.full').get(function(){
+  sch.virtual('name.full').get(function(){
     return this.name.first + ' ' + this.name.last ;
   }) ;
   
   // used for ACL callback
-  UserSchema.virtual('user_id').get(function(){
+  sch.virtual('user_id').get(function(){
     return this._id.toString() ;
   }) ;
   
   // used for ACL callback
-  UserSchema.virtual('resource_id').get(function(){
+  sch.virtual('resource_id').get(function(){
     return 'account' ;
   }) ;
   
-  UserSchema.virtual('isLocked').get(function(){
+  sch.virtual('isLocked').get(function(){
     return !!(this.lockUntil && this.lockUntil > Date.now()) ;
   }) ;
   
@@ -58,7 +58,7 @@ var sch = function(){
   // =======================
   
   
-  UserSchema.pre('validate',function(next){
+  sch.pre('validate',function(next){
   
     // assign default user role
     if (!this.role_id)
@@ -68,7 +68,7 @@ var sch = function(){
   }) ;
   
   /** encrypt password on save */
-  UserSchema.pre('save', function(next){
+  sch.pre('save', function(next){
     var user = this ;
     
     // only hash the password if it has been modified or is new
@@ -92,7 +92,7 @@ var sch = function(){
   
   
   /** create api secret */
-  UserSchema.pre('validate', function(next){
+  sch.pre('validate', function(next){
     var user = this ;
     
     // generate new API Key/Secret if either is empty
@@ -107,19 +107,19 @@ var sch = function(){
   // !MODEL VALIDATIONS
   // =======================
   
-  UserSchema.path('email').validate(function(value){
+  sch.path('email').validate(function(value){
     return /^.+@.+\..+$/.test(value) ;
   }, "This does not appear to be a valid email address") ;
   
-  UserSchema.path('password').validate(function(value){
+  sch.path('password').validate(function(value){
     return value.length >= 8 ;
   }, "Your password must be at least 8 characters long");
   
-  UserSchema.path('apiKey').validate(function(value){
+  sch.path('apiKey').validate(function(value){
     return /^[A-Fa-f0-9]{24}$/.test(value) ;
   }, 'API Secret should be generated as a 24-character string (12 hex values)');
   
-  UserSchema.path('apiSecret').validate(function(value){
+  sch.path('apiSecret').validate(function(value){
     return /^[A-Fa-f0-9]{48}$/.test(value) ;
   }, 'API Secret should be generated as a 48-character string (24 hex values)');
   
@@ -128,14 +128,14 @@ var sch = function(){
   // !OBJECT METHODS
   // =======================
   
-  UserSchema.methods.comparePassword = function(candidatePassword, cb) {
+  sch.methods.comparePassword = function(candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch){
       if (err) return cb(err) ;
       cb(null, isMatch) ;
     }) ;
   } ;
   
-  UserSchema.methods.compareHmac = function(candidateHash, data) {
+  sch.methods.compareHmac = function(candidateHash, data) {
     var secret = this.apiSecret ;
     var hmac = crypto.createHmac('sha256', secret) ;
     hmac.setEncoding('hex') ;
@@ -147,7 +147,7 @@ var sch = function(){
     return hash == candidateHash ;
   };
   
-  UserSchema.methods.resetApiCredentials = function(cb) {
+  sch.methods.resetApiCredentials = function(cb) {
     var self = this ;
     
     async.parallel([function(next){
@@ -166,7 +166,7 @@ var sch = function(){
     }) ;  
   } ;
   
-  UserSchema.methods.incLoginAttempts = function(cb) {
+  sch.methods.incLoginAttempts = function(cb) {
   
     if (this.lockUntil && this.lockUntil < Date.now()) {
       return this.update({
@@ -182,7 +182,7 @@ var sch = function(){
     return this.update(updates, cb) ;
   } ;
   
-  var reasons = UserSchema.statics.failedLogin = {
+  var reasons = sch.statics.failedLogin = {
     NOT_FOUND: 0,
     PASSWORD_INCORRECT: 1,
     MAX_ATTEMPTS: 2,
@@ -196,7 +196,7 @@ var sch = function(){
   // !STATIC METHODS
   // =======================
   
-  UserSchema.statics.getAuthenticated = function(username, password, cb) {
+  sch.statics.getAuthenticated = function(username, password, cb) {
   
     this.findOne({"email": username}, function(err, user){
       if (err) return cb(err) ;
@@ -231,7 +231,7 @@ var sch = function(){
     }) ;
   } ;
   
-  UserSchema.statics.verifyHmac = function(apiKey, hashed, payload, cb) {
+  sch.statics.verifyHmac = function(apiKey, hashed, payload, cb) {
   
     // check for presence of timestamp
     if (!payload.date) 
@@ -258,10 +258,10 @@ var sch = function(){
     });
   };
   
-  return UserSchema;
+  return sch;
 };
 
 module.exports = {
-  Model: store.mongoose.model('User', sch()),
-  Schema: sch
+  Model: store.mongoose.model('User', UserSchema()),
+  Schema: UserSchema
 };
