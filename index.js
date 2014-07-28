@@ -1,6 +1,6 @@
 var U = require('./models/User')
   , authStrategies = require('./middleware/auth-strategies')
-  , config = require('config')
+  , config = require('./config')
   ;
 
 module.exports = {
