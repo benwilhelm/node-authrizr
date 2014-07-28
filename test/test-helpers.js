@@ -1,5 +1,6 @@
 var appRoot = ".."
   , async = require('async')
+  , crypto = require('crypto')
   , fixtures = require('pow-mongoose-fixtures')
   , store = require('../lib/db')
   ,   db = store.database
@@ -31,4 +32,11 @@ module.exports = {
     });
   },
   
+  hmacData: function(data, secret) {
+    var hmac = crypto.createHmac('sha256',secret) ;
+    hmac.setEncoding('hex') ;
+    hmac.write(JSON.stringify(data)) ;
+    hmac.end() ;
+    return hmac.read() ;
+  }
 };

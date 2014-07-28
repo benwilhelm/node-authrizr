@@ -34,7 +34,7 @@ function testUser(email) {
   });
 }
   
-describe("Unit-User", function(){
+describe("Unit - User", function(){
 
   var user1;
 
@@ -238,7 +238,7 @@ describe("Unit-User", function(){
       });
     });
     
-    it("should fail old timestamp", function(done){
+    it("should fail with old timestamp", function(done){
       testData.date = Date.UTC(2013,12,31) ;
       var hash = hmacData(testData, user1.apiSecret) ;
       User.verifyHmac(user1.apiKey, hash, testData, function(err, user, reason){
