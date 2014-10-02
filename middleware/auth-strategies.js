@@ -3,6 +3,7 @@ var config = require('../config')
   , BasicStrategy = require('passport-http').BasicStrategy
   , LocalStrategy = require('passport-local').Strategy
   , User = require('../models/User').Model
+  , url = require('url')
   ;
 
 passport.serializeUser(function(user, done) {
@@ -39,8 +40,7 @@ passport.use(new LocalStrategy(
 var exports = {
   passport: passport,
   authenticateHmacOrLocal: function(req, res, next){
-    var format = req.param.format || 'html';
-    if ('json' === format) {
+    if (req.headers.authorization) {
       exports.hmac.authenticate(req, res, next);
     } else {
       exports.local.ensureAuthenticated(req, res, next);
@@ -76,7 +76,15 @@ var exports = {
       , hash=parts[1]
       ;
       
-      User.verifyHmac(apiKey, hash, req.body, function(err, user, reason){
+      var data = {};
+      if (req.method === 'GET') {
+        var theUrl = url.parse(req.originalUrl, true);
+        data = theUrl.query;
+      } else {
+        data = req.body;
+      }
+      
+      User.verifyHmac(apiKey, hash, data, function(err, user, reason){
         if (user) {
           req.user = user ;
           next() ;

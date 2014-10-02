@@ -2,6 +2,7 @@ var express = require('express')
   , app = module.exports = express()
   , authrizr = require('../index')
   , bodyParser = require('body-parser')
+  , crypto = require('crypto')
   , methodOverride = require('method-override')
   , passport = require('passport')
   ;
@@ -10,8 +11,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(methodOverride());
 app.use(passport.initialize());
+
 app.use(passport.session({
-  secret: 'foo',
+  secret: crypto.randomBytes(20).toString('hex'),
   saveUninitialized: true,
   resave: true
 }));
@@ -19,6 +21,7 @@ app.use(passport.session({
 app.use("/local/*", authrizr.authStrategies.local.ensureAuthenticated);
 app.use("/basic/*", authrizr.authStrategies.basic.authenticate);
 app.use("/hmac/*",  authrizr.authStrategies.hmac.authenticate);
+app.use("/hmacorlocal/*", authrizr.authStrategies.authenticateHmacOrLocal);
 
 app.route('/')
 .get(function(req, res, next){
@@ -50,3 +53,7 @@ app.route('/hmac/account')
   res.send('ok');
 });
 
+app.route('/hmacorlocal/account')
+.all(function(req, res, next){
+  res.send('ok');
+});

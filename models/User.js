@@ -236,7 +236,8 @@ var UserSchema = function(){
     if (!payload.date) 
       return cb(null, null, reasons.NO_TIMESTAMP) ;
       
-  
+    var theDate = parseInt(payload.date);
+    
     // 3 min threshold
     var threshold = 3 * 60 * 1000 ;
     var diff = payload.date - Math.floor(new Date().getTime() / 1000) ;
